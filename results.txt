@@ -1,0 +1,83 @@
+Fake News Detection - Latest Model Results
+Last updated: 2026-02-21
+
+Task setup
+- Problem: Binary classification (Fake=0, True=1)
+- Data splits: train=10240, valid=1284, test=1267
+
+Class balance
+- Train: Fake=4488 (0.438), True=5752 (0.562)
+- Valid: Fake=616 (0.480), True=668 (0.520)
+- Test:  Fake=553 (0.436), True=714 (0.564)
+
+Evaluation note
+- Current code evaluates most classical models on VALIDATION split.
+- Logistic Regression reports TEST split in its module.
+
+Summary (latest runs)
+- Logistic Regression: split=test, accuracy=0.6283, macro_f1=0.6188, runtime~57s
+- Logistic Regression (validation check): split=valid, accuracy=0.6386, macro_f1=0.6371
+- SVM (RBF): split=valid, accuracy=0.6269, runtime~34s
+- Random Forest: split=valid, accuracy=0.7040, runtime~17s
+- XGBoost: split=valid, accuracy=0.7445, runtime~16s
+- Stacking Ensemble: split=valid, accuracy=0.7438, runtime~340s
+
+Detailed outputs
+
+1) Logistic Regression (test)
+Test Accuracy: 0.6283
+              precision    recall  f1-score   support
+
+        Fake       0.58      0.54      0.56       553
+        True       0.66      0.70      0.68       714
+
+    accuracy                           0.63      1267
+   macro avg       0.62      0.62      0.62      1267
+weighted avg       0.63      0.63      0.63      1267
+
+2) SVM (validation)
+Validation Accuracy: 0.6269
+              precision    recall  f1-score   support
+
+        Fake       0.68      0.43      0.52       616
+        True       0.61      0.81      0.69       668
+
+    accuracy                           0.63      1284
+   macro avg       0.64      0.62      0.61      1284
+weighted avg       0.64      0.63      0.61      1284
+
+3) Random Forest (validation)
+Validation Accuracy: 0.7040
+              precision    recall  f1-score   support
+
+        Fake       0.74      0.59      0.66       616
+        True       0.68      0.81      0.74       668
+
+    accuracy                           0.70      1284
+   macro avg       0.71      0.70      0.70      1284
+weighted avg       0.71      0.70      0.70      1284
+
+4) XGBoost (validation)
+Validation Accuracy: 0.7445
+              precision    recall  f1-score   support
+
+        Fake       0.77      0.67      0.72       616
+        True       0.73      0.81      0.77       668
+
+    accuracy                           0.74      1284
+   macro avg       0.75      0.74      0.74      1284
+weighted avg       0.75      0.74      0.74      1284
+
+5) Stacking Ensemble (validation)
+Validation Accuracy: 0.7438
+              precision    recall  f1-score   support
+
+        Fake       0.77      0.66      0.71       616
+        True       0.72      0.82      0.77       668
+
+    accuracy                           0.74      1284
+   macro avg       0.75      0.74      0.74      1284
+weighted avg       0.75      0.74      0.74      1284
+
+Warnings observed
+- XGBoost warning: parameter `use_label_encoder` is unused in current xgboost version.

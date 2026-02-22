@@ -1,6 +1,9 @@
 import pandas as pd
 import os
 import sys
+from sklearn.ensemble import StackingClassifier, RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
 from xgboost import XGBClassifier
 from sklearn.metrics import classification_report, accuracy_score
 
@@ -8,7 +11,7 @@ from sklearn.metrics import classification_report, accuracy_score
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from utils import load_data, get_tfidf_vectorizer, get_binary_labels, get_feature_pipeline, combine_features
 
-def run_xgboost():
+def run_stacking():
     # 1. Load Data
     print("Loading data...")
     train_df, valid_df, test_df = load_data()
@@ -36,22 +39,30 @@ def run_xgboost():
     print(" - Combining features...")
     X_train = combine_features(X_train_text, X_train_meta)
     X_valid = combine_features(X_valid_text, X_valid_meta)
-
-    # 4. Initialize XGBoost
-    print("Initializing XGBoost (Binary Classification)...")
-    clf = XGBClassifier(
-        n_estimators=100, 
-        n_jobs=-1, 
-        random_state=42, 
-        use_label_encoder=False, 
-        eval_metric='logloss'
+    
+    # 4. Initialize Base Learners
+    print("Initializing Base Learners...")
+    estimators = [
+        ('rf', RandomForestClassifier(n_estimators=100, n_jobs=-1, random_state=42)),
+        ('svm', SVC(kernel='rbf', C=1.0, gamma='scale', probability=True)), # probability=True needed for stacking sometimes, or at least helpful
+        ('xgb', XGBClassifier(n_estimators=100, n_jobs=-1, random_state=42, use_label_encoder=False, eval_metric='logloss')),
+        ('lr', LogisticRegression(max_iter=1000, solver='lbfgs'))
+    ]
+    
+    # 5. Initialize Stacking Classifier
+    print("Initializing Stacking Classifier (Meta-Learner: Logistic Regression)...")
+    clf = StackingClassifier(
+        estimators=estimators,
+        final_estimator=LogisticRegression(),
+        n_jobs=-1,
+        passthrough=False # False: Meta-learner only sees predictions of base learners
     )
     
-    # 5. Train
-    print("Training XGBoost model...")
+    # 6. Train
+    print("Training Stacking Ensemble (this will take a while as it trains all base models)...")
     clf.fit(X_train, y_train)
     
-    # 6. Evaluate
+    # 7. Evaluate
     print("Evaluating on Validation Set...")
     y_pred = clf.predict(X_valid)
     
@@ -60,4 +71,4 @@ def run_xgboost():
     print("\nClassification Report:\n", classification_report(y_valid, y_pred, target_names=['Fake', 'True']))
 
 if __name__ == "__main__":
-    run_xgboost()
+    run_stacking()
