@@ -1,0 +1,22 @@
+{
+  "model": "rf",
+  "mode": "baseline",
+  "test_metrics": {
+    "accuracy": 0.6621941594317285,
+    "precision": 0.6833333333333333,
+    "recall": 0.7464985994397759,
+    "f1": 0.713520749665328,
+    "roc_auc": 0.7147479244862502,
+    "confusion_matrix": [
+      [
+        306,
+        247
+      ],
+      [
+        181,
+        533
+      ]
+    ],
+    "classification_report": "              precision    recall  f1-score   support\n\n        Fake       0.63      0.55      0.59       553\n        True       0.68      0.75      0.71       714\n\n    accuracy                           0.66      1267\n   macro avg       0.66      0.65      0.65      1267\nweighted avg       0.66      0.66      0.66      1267\n"
+  }
+}
