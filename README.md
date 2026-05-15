@@ -1,67 +1,396 @@
-# Fake News Detection
+# Fake News Detection using Machine Learning and Transformer Models
 
-This project trains and evaluates fake news detection models on the LIAR dataset with one model per run. The workflow is designed for limited-resource machines, so the requested algorithms are isolated instead of being launched together.
+A modular research-oriented fake news detection framework built on the LIAR dataset.  
+The project compares multiple classical machine learning algorithms and transformer-based architectures for binary fake news classification using textual and metadata-driven features.
 
-## Implemented Models
+The repository was designed for reproducible experimentation, leakage-aware evaluation, and publication-quality result generation.
 
-- `bert`: BERT-base fine-tuning baseline (`bert-base-uncased`)
-- `rf`: Random Forest with TF-IDF features
-- `rbf`: SVM with RBF kernel using TF-IDF + Truncated SVD
-- `gb`: Gradient Boosting with engineered text and metadata features
-- `stack`: Stacking ensemble of multiple classifiers
+---
 
-## Why The Runs Are Split
+# Project Objectives
 
-- BERT fine-tuning is much heavier than the classical models.
-- Random Forest and Gradient Boosting need dense inputs, so their feature spaces are compressed before fitting.
-- RBF SVM is trained on an SVD-reduced representation to keep memory and runtime under control.
-- The stacking model is also a separate run, because it internally trains several base classifiers.
+This project aims to:
 
-## Install
+- Detect fake versus true political statements
+- Compare multiple supervised learning approaches
+- Evaluate performance using consistent metrics
+- Investigate trade-offs between accuracy, interpretability, and computational cost
+- Generate reproducible experimental reports and publication-ready figures
+
+---
+
+# Implemented Models
+
+| Model Key | Model |
+|---|---|
+| `bert` | BERT-base fine-tuning baseline |
+| `rf` | Random Forest with TF-IDF features |
+| `rbf` | Support Vector Machine with RBF kernel |
+| `gb` | Gradient Boosting with engineered metadata features |
+| `stack` | Stacking ensemble classifier |
+
+---
+
+# Dataset
+
+Dataset: LIAR Fake News Dataset
+
+The dataset contains short political statements labelled with truthfulness categories.
+
+Original labels are converted into binary classes:
+
+| Binary Label | Original Labels |
+|---|---|
+| Fake | false, pants-fire, barely-true |
+| True | true, mostly-true, half-true |
+
+Dataset files must exist inside:
+
+```text
+data/raw/
+├── train.tsv
+├── valid.tsv
+└── test.tsv
+```
+
+---
+
+# Key Features
+
+## Leakage Prevention
+
+The pipeline performs:
+
+- within-split deduplication
+- cross-split statement overlap removal
+- normalized text matching
+- speaker-aware duplicate filtering
+
+This reduces evaluation contamination and improves experimental validity.
+
+---
+
+## Feature Engineering
+
+The classical ML pipelines include:
+
+- TF-IDF word n-grams
+- optional character n-grams
+- speaker credibility encoding
+- categorical metadata encoding
+- engineered text statistics
+- lie-ratio numerical feature
+
+Metadata features include:
+
+- speaker
+- party affiliation
+- state
+- context
+- subject category
+- historical truthfulness counts
+
+---
+
+## Hyperparameter Search
+
+Classical models use:
+
+- RandomizedSearchCV
+- Stratified K-Fold cross-validation
+- macro F1-score optimization
+
+---
+
+## Automated Evaluation
+
+Generated reports include:
+
+- accuracy
+- precision
+- recall
+- F1-score
+- macro F1-score
+- ROC-AUC
+- confusion matrices
+- runtime statistics
+- memory estimates
+- dataset audit summaries
+
+---
+
+# Repository Structure
+
+```text
+Fake-News-Detection/
+│
+├── data/
+│   └── raw/
+│       ├── train.tsv
+│       ├── valid.tsv
+│       └── test.tsv
+│
+├── docs/
+├── models/
+├── outputs/
+├── results/
+│   ├── figures/
+│   ├── reports/
+│   └── tables/
+│
+├── src/
+│   ├── models/
+│   ├── bert_runner.py
+│   ├── config.py
+│   ├── data.py
+│   ├── evaluate.py
+│   ├── features.py
+│   ├── modeldefs.py
+│   ├── train.py
+│   ├── utils.py
+│   └── visualize_results.py
+│
+├── generate_paper_figures.py
+├── main.py
+├── train.py
+└── requirements.txt
+```
+
+---
+
+# Installation
+
+## 1. Clone Repository
+
+```bash
+git clone https://github.com/Abdullah/Fake-News-Detection.git
+cd Fake-News-Detection
+```
+
+## 2. Create Virtual Environment
+
+### Windows PowerShell
+
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+```
+
+---
+
+## 3. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-For BERT on restricted or offline environments, cache `bert-base-uncased` first or set `HF_HUB_OFFLINE=1` when the model is already cached locally.
+Main libraries:
 
-## Run One Model
+- scikit-learn
+- pandas
+- numpy
+- scipy
+- torch
+- transformers
+- matplotlib
+- seaborn
+
+---
+
+# Running Models
+
+## Random Forest
 
 ```bash
 python main.py --model rf
+```
+
+---
+
+## SVM with RBF Kernel
+
+```bash
 python main.py --model rbf
+```
+
+---
+
+## Gradient Boosting
+
+```bash
 python main.py --model gb
+```
+
+---
+
+## Stacking Ensemble
+
+```bash
 python main.py --model stack
+```
+
+---
+
+## BERT Fine-Tuning
+
+```bash
 python main.py --model bert
 ```
 
-Equivalent model-specific entrypoints:
+---
+
+# Important Command-Line Arguments
+
+| Argument | Description |
+|---|---|
+| `--sample-fraction` | Percentage of dataset used |
+| `--skip-tuning` | Disable hyperparameter search |
+| `--search-iterations` | Override tuning iterations |
+| `--char-ngrams` | Enable character n-grams |
+| `--tfidf-max-features` | Override TF-IDF vocabulary size |
+| `--bert-max-epochs` | BERT training epochs |
+| `--bert-batch-size` | BERT batch size |
+| `--bert-max-length` | Maximum token length |
+
+---
+
+# Example Commands
+
+## Full Dataset Random Forest
 
 ```bash
-python -m src.models.random_forest
-python -m src.models.svm_rbf
-python -m src.models.gradient_boosting
-python -m src.models.stacking
-python -m src.models.bert
+python main.py --model rf --sample-fraction 1.0
 ```
 
-## Useful Flags
+---
+
+## Faster Classical Training
 
 ```bash
-python main.py --model rf --skip-tuning
-python main.py --model gb --sample-fraction 0.25
-python main.py --model rbf --char-ngrams
-python main.py --model bert --bert-max-epochs 2 --bert-batch-size 4 --bert-max-length 128
+python main.py --model gb --skip-tuning
 ```
 
-## Output
+---
 
-Each run writes one JSON report to `results/reports/`, for example:
+## Stronger Hyperparameter Search
 
-- `results/reports/random_forest_report.json`
-- `results/reports/svm_rbf_report.json`
-- `results/reports/gradient_boosting_report.json`
-- `results/reports/stacking_report.json`
-- `results/reports/bert_report.json`
+```bash
+python main.py --model stack --search-iterations 12
+```
 
-Reports include dataset audit information, validation results, test metrics, training time, and model-input memory estimates for the classical pipelines.
+---
+
+## BERT with Custom Epochs
+
+```bash
+python main.py --model bert --bert-max-epochs 4
+```
+
+---
+
+# Offline BERT Usage
+
+If the Hugging Face model is already cached locally:
+
+```powershell
+$env:HF_HUB_OFFLINE="1"
+python main.py --model bert
+```
+
+To pre-download models:
+
+```bash
+python download_models.py
+```
+
+---
+
+# Generated Outputs
+
+Reports are stored in:
+
+```text
+results/reports/
+```
+
+Figures are stored in:
+
+```text
+results/figures/
+```
+
+Tables are stored in:
+
+```text
+results/tables/
+```
+
+---
+
+# Generate Publication Figures
+
+```bash
+python generate_paper_figures.py
+```
+
+Generated figures include:
+
+- model performance comparison
+- ROC curves
+- confusion matrices
+- training-time trade-off plots
+
+---
+
+# Experimental Design
+
+## Validation Strategy
+
+- Stratified K-Fold cross-validation
+- separate train/validation/test splits
+- leakage-aware preprocessing
+
+---
+
+## Evaluation Metrics
+
+Classification metrics:
+
+- Accuracy
+- Precision
+- Recall
+- F1-score
+- Macro F1-score
+- ROC-AUC
+
+---
+
+# Hardware Notes
+
+The project was intentionally designed to support:
+
+- CPU-only environments
+- low-memory systems
+- staged experimentation
+- partial dataset sampling
+
+BERT training remains substantially heavier than the classical pipelines.
+
+---
+
+# Research Context
+
+This repository was developed as part of a comparative machine learning research project focused on fake news detection using both traditional machine learning and transformer-based architectures.
+
+---
+
+# Authors
+
+Abdullah Bahamish
+Computer Science Department
+
+---
+
+# License
+
+This repository is intended for academic and research purposes.
