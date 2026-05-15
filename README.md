@@ -44,7 +44,7 @@ Original labels are converted into binary classes:
 | Fake | false, pants-fire, barely-true |
 | True | true, mostly-true, half-true |
 
-Dataset files must exist inside:
+Dataset files exist inside:
 
 ```text
 data/raw/
