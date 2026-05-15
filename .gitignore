@@ -15,3 +15,27 @@ Thumbs.db
 
 # Data (optional: keep raw, ignore processed)
 data/processed/
+
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+venv/
+.env/
+
+# Model weights
+models/
+
+# Generated reports/figures
+results/
+outputs/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS files
+.DS_Store
+Thumbs.db
