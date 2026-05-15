@@ -163,7 +163,7 @@ Fake-News-Detection/
 ## 1. Clone Repository
 
 ```bash
-git clone https://github.com/Abdullah/Fake-News-Detection.git
+git clone https://github.com/AbdullahBahamish/Fake-News-Detection.git
 cd Fake-News-Detection
 ```
 
